@@ -66,7 +66,7 @@ echo "                                                  -- script --"
 echo "installing apps with brew cask"
 brew install --cask google-chrome \
 	firefox \
-	iterm \
+	iterm2 \
 	google-drive \
 	visual-studio-code \
 	sublime-text \
