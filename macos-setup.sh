@@ -34,7 +34,7 @@ done
 
 echo "                                                  -- script --"
 echo "Installing homebrew"
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 2>/dev/null
 
 sleep 5;
 
@@ -46,11 +46,12 @@ brew install git \
 	clintmod/formulas/macprefs \
 	stow \
 	node \
-	fzf
+	fzf \
+	2>/dev/null
 
 sleep 5;
 
-$(brew --prefix)/opt/fzf/install
+$(brew --prefix)/opt/fzf/install 2>/dev/null
 
 sleep 5;
 
@@ -83,7 +84,8 @@ brew install --cask google-chrome \
 	spotify \
 	focus \
 	qmoji \
-	slack
+	slack \
+	2>/dev/null
 
 sleep 5;
 
