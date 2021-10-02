@@ -4,6 +4,7 @@
 # curl -fsSL https://piyush1104.github.io/macos-setup.sh | bash
 # /bin/bash -c "$(curl -fsSL https://piyush1104.github.io/macos-setup.sh)"
 
+echo "                                                  -- script --"
 echo "Hello $(whoami)! Let's get you set up."
 
 # Close any open System Preferences panes, to prevent them from overriding
@@ -11,6 +12,7 @@ echo "Hello $(whoami)! Let's get you set up."
 osascript -e 'tell application "System Preferences" to quit'
 
 # Ask for the administrator password upfront
+echo "                                                  -- script --"
 echo "Please provide your admin password"
 sudo -v
 
@@ -20,6 +22,7 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 # Install XCode Command Line Tools.
 if [[ ! $(xcode-select --print-path &> /dev/null) ]]
 then
+	echo "                                                  -- script --"
         echo "Installing Command Line tools"
         xcode-select --install &> /dev/null
 fi
@@ -29,9 +32,13 @@ until $(xcode-select --print-path &> /dev/null); do
   sleep 5;
 done
 
-echo "installing homebrew"
+echo "                                                  -- script --"
+echo "Installing homebrew"
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
+sleep 5;
+
+echo "                                                  -- script --"
 echo "installing packages"
 brew install git \
 	tree \
@@ -41,14 +48,21 @@ brew install git \
 	node \
 	fzf
 
+sleep 5;
+
 $(brew --prefix)/opt/fzf/install
 
+sleep 5;
 
+echo "                                                  -- script --"
 echo "Installing nvm"
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
 
+sleep 5;
+
 # TODO: install global npm packages - prettier, 
 
+echo "                                                  -- script --"
 echo "installing apps with brew cask"
 brew install --cask google-chrome \
 	firefox \
@@ -71,18 +85,22 @@ brew install --cask google-chrome \
 	qmoji \
 	slack
 
+sleep 5;
 
+echo "                                                  -- script --"
 echo "Generating a new SSH key for GitHub"
 
 default_email="bansalpiyush177@gmail.com"
 default_comment="me+github@piyush1104.com from Macbook Pro"
 echo "Please enter your comment for the public key, press Enter to use default comment- ${default_comment}"
+
 read -r comment
 
 if [[ ! $comment ]]
 then
 	comment=$default_comment
 fi
+
 ssh-keygen -t ed25519 -C "${comment}" -f ~/.ssh/id_ed25519
 
 # eval "$(ssh-agent -s)"
@@ -93,6 +111,8 @@ echo "Host *\n AddKeysToAgent yes\n UseKeychain yes\n IdentityFile ~/.ssh/id_ed2
 
 cat ~/.ssh/id_ed25519.pub
 pbcopy < ~/.ssh/id_ed25519.pub
+
+echo "                                                  -- script --"
 echo "Copied the above file to your clipboard, press ENTER to go ahead"
 read -r
 
@@ -104,20 +124,26 @@ stow vim
 stow zsh
 stow nvim
 
+cd ..
+
 # Install tmpmail
+echo "                                                  -- script --"
 echo "Installing tmpmail"
 curl -L "https://git.io/tmpmail" > tmpmail && chmod +x tmpmail
 
+echo "                                                  -- script --"
 echo "Installing ohmyzsh"
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+echo "                                                  -- script --"
 echo "Remember that ohmyzsh would have backed up your original zshrc file"
 
+echo "                                                  -- script --"
 echo "Setting your preferences"
 export MACPREFS_BACKUP_DIR="$HOME/dotfiles/macos/preferences"
 
 echo "Press y to change your preferences, anything else for skipping this step"
 read -r
-if [[ $REPLY == 'y' ]]
+if [[ $REPLY == "y" ]]
 then
 	if [[ -d $MACPREFS_BACKUP_DIR && -r $MACPREFS_BACKUP_DIR ]]
 	then
@@ -125,7 +151,7 @@ then
 	fi
 fi
 
-
+echo "                                                  -- script --"
 echo "You might have to logout and log back in, once the script ends"
 
 
