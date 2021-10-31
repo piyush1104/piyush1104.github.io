@@ -144,6 +144,7 @@ brew "gh"
 brew "jq"
 brew "w3m"
 brew "bat"
+brew "gitui"
 
 # installing casks
 cask "google-chrome"
@@ -155,17 +156,29 @@ cask "sublime-text"
 cask "vlc"
 cask "discord"
 cask "zoom"
+
+# I am installing these packages after looking from here - http://sourabhbajaj.com/mac-setup/Homebrew/Cask.html
+# Also look it here - https://github.com/sindresorhus/quick-look-plugins
 cask "qlcolorcode"
 cask "qlmarkdown"
 cask "qlstephen"
 cask "quicklook-json"
 cask "webpquicklook"
 cask "suspicious-package"
+cask "qmoji"
 cask "qlvideo"
+
 cask "spotify"
 cask "focus"
-cask "qmoji"
 cask "slack"
+cask "whatsapp"
+cask "docker"
+cask "flux"
+cask "transmission"
+cask "macvim"
+
+# good package, but I don't need it yet
+# cask "sensiblesidebuttons"
 EOF
 
 # another way to install all the casks and brews are -
@@ -273,6 +286,7 @@ then
     echo "------------===============------------"
     echo "Installing global npm packages like - prettier"
     npm install -g prettier
+    npm install -g eslint
 fi
 
 
