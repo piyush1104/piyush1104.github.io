@@ -210,7 +210,7 @@ echo "Please enter your comment for the public key, press Enter to use default c
 read -r -p "**** waiting for input ****    " comment
 if [[ ! $comment ]]
 then
-	comment=$default_comment
+	comment=${default_comment}
 fi
 
 ssh-keygen -t ed25519 -C "${comment}" -f ~/.ssh/id_ed25519
