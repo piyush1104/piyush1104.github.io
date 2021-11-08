@@ -145,6 +145,7 @@ brew "jq"
 brew "w3m"
 brew "bat"
 brew "gitui"
+brew "zsh-vi-mode"
 
 # installing casks
 cask "google-chrome"
