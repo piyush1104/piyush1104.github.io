@@ -136,7 +136,7 @@ brew bundle --file=<<EOF
 brew "git"
 brew "tree"
 brew "bat"
-brew "clintmod/formulas/macprefs"
+brew "piyush1104/formulas/macprefs"
 brew "stow"
 brew "node"
 brew "fzf"
@@ -310,7 +310,7 @@ then
 
 	if [[ -d $MACPREFS_BACKUP_DIR && -r $MACPREFS_BACKUP_DIR ]]
 	then
-		macprefs restore
+		macprefs restore -t system_preferences startup_items preferences app_store_preferences internet_accounts
         echo "------------===============------------"
         echo "You might have to logout and log back in, once the script ends"
 	fi
