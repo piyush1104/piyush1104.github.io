@@ -4,6 +4,10 @@
 # curl -fsSL https://piyush1104.github.io/macos-setup.sh | bash
 # /bin/bash -c "$(curl -fsSL https://piyush1104.github.io/macos-setup.sh)"
 
+# Some great setup guide-
+# https://gist.github.com/millermedeiros/6615994#5-borrow-a-few-osx-settings-from-mathiasbynens-dotfiles
+# https://github.com/mathiasbynens/dotfiles/blob/master/.macos
+
 echo "Hello $(whoami)! Let's get you set up."
 
 # Grant full disk access to the terminal
