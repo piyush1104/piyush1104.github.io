@@ -131,7 +131,7 @@ echo "installing brews and casks"
 # brew bundle --file=BREWFILE
 
 
-brew bundle --file=<<EOF
+brew bundle --file=- <<-EOF
 # For installing packages like this, refer - https://github.com/Homebrew/brew/issues/2491#issuecomment-372402005
 # and https://github.com/Homebrew/homebrew-bundle
 # Also look at these - https://unix.stackexchange.com/questions/505828/how-to-pass-a-string-to-a-command-that-expects-a-file and https://unix.stackexchange.com/questions/20035/how-to-add-newlines-into-variables-in-bash-script
