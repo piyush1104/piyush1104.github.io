@@ -317,7 +317,7 @@ then
 	then
 		macprefs restore -t system_preferences startup_items preferences app_store_preferences internet_accounts
         echo "------------===============------------"
-        echo "You might have to logout and log back in, once the script ends"
+        echo "You might have to logout or maybe even restart, once the script ends for preferences to take effect."
 	fi
 fi
 
