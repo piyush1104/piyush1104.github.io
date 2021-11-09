@@ -246,7 +246,7 @@ read -r -p "**** waiting for input ****    "
 DOTFILES_DIR="${HOME}/dotfiles"
 echo "cloning dotfiles"
 git-clone git@github.com:piyush1104/dotfiles.git $DOTFILES_DIR
-cd dotfiles
+cd ~/dotfiles
 stow vim
 stow zsh
 stow nvim
