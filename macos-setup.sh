@@ -203,6 +203,9 @@ EOF
 # Setting up your git #
 # =================== #
 
+git config --global user.name "Piyush Bansal"
+git config --global user.email "bansalpiyush177@gmail.com"
+
 echo "------------===============------------"
 echo "Generating a new SSH key for GitHub"
 
