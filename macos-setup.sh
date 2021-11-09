@@ -69,7 +69,7 @@ git-clone() {
     if cd $repo
     then 
         git pull
-        cd ..
+        cd -
     else 
         git clone $url $repo
     fi
@@ -250,7 +250,7 @@ cd ~/dotfiles
 stow vim
 stow zsh
 stow nvim
-cd ..
+cd -
 
 
 # ================================== #
