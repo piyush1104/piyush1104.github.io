@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
-# Run this script
-# curl -fsSL https://piyush1104.github.io/macos-setup.sh | bash
+# Run this script (preferred method)
 # /bin/bash -c "$(curl -fsSL https://piyush1104.github.io/macos-setup.sh)"
+
+# Obselete method - (for some reason, it fails sometimes)
+# curl -fsSL https://piyush1104.github.io/macos-setup.sh | bash
+
 
 # Some great setup guide-
 # https://gist.github.com/millermedeiros/6615994#5-borrow-a-few-osx-settings-from-mathiasbynens-dotfiles
