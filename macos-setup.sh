@@ -164,6 +164,7 @@ cask "sublime-text"
 cask "vlc"
 cask "discord"
 cask "zoom"
+cask "sublime-merge"
 
 # I am installing these packages after looking from here - http://sourabhbajaj.com/mac-setup/Homebrew/Cask.html
 # Also look it here - https://github.com/sindresorhus/quick-look-plugins
@@ -298,6 +299,7 @@ then
     echo "Installing global npm packages like - prettier"
     npm install -g prettier
     npm install -g eslint
+    npm install -g yarn
 fi
 
 
