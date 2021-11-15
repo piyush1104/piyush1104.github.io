@@ -153,8 +153,14 @@ brew "w3m"
 brew "bat"
 brew "gitui"
 brew "zsh-vi-mode"
+brew "docker"
+brew "mas"
 
 # installing casks
+cask "notion"
+cask "figma"
+cask "betterzip"
+cask "sequel-ace"
 cask "google-chrome"
 cask "firefox"
 cask "iterm2"
@@ -165,6 +171,9 @@ cask "vlc"
 cask "discord"
 cask "zoom"
 cask "sublime-merge"
+cask "obsidian"
+cask "pycharm-ce"
+
 
 # I am installing these packages after looking from here - http://sourabhbajaj.com/mac-setup/Homebrew/Cask.html
 # Also look it here - https://github.com/sindresorhus/quick-look-plugins
@@ -185,10 +194,17 @@ cask "docker"
 cask "flux"
 cask "transmission"
 cask "macvim"
+cask "postman"
+cask "stremio"
+cask "rectangle"
 
 # good package, but I don't need it yet
 # cask "sensiblesidebuttons"
+
+tap "homebrew/cask-fonts"
+cask "font-fira-code"
 EOF
+
 
 # another way to install all the casks and brews are -
 # valid_casks=()
