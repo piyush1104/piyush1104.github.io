@@ -157,6 +157,7 @@ brew "docker"
 brew "mas"
 
 # installing casks
+cask "protonvpn"
 cask "notion"
 cask "figma"
 cask "betterzip"
