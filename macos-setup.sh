@@ -49,6 +49,8 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 # Install XCode Command Line Tools. #
 # ================================= #
 
+# xcode-select -p 1>/dev/null;echo $?
+
 if [[ $(xcode-select --print-path &> /dev/null) ]]
 then
     echo ""
