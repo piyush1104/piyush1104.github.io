@@ -51,6 +51,15 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 # xcode-select -p 1>/dev/null;echo $?
 
+not-xcode() {
+    return $(xcode-select -p 1>/dev/null;echo $?)
+}
+
+if [[ not-xcode ]]
+then
+        echo "hello not xcode"
+fi
+
 if [[ $(xcode-select --print-path &> /dev/null) ]]
 then
     echo ""
