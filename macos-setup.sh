@@ -20,7 +20,7 @@ echo "Hello $(whoami)! Let's get you set up."
 if [[ ! -r "/Library/Application Support/com.apple.TCC/TCC.db" ]]
 then
     echo "You might not have given full disk access to the terminal."
-    echo "Press y to open System Preferences to grant full disk access to terminal"
+    echo "Type y to open System Preferences to grant full disk access to terminal. You will have to add your terminal by clicking on + button at bottom left."
 
     # Something to learn - "read -p" only works in bash environment
     read -r -p "**** waiting for input ****     "
@@ -37,13 +37,66 @@ fi
 # settings we’re about to change
 osascript -e 'tell application "System Preferences" to quit'
 
+
+
+# ========================= #
+# Get admin password  #
+# ========================= #
+
+# https://askubuntu.com/questions/838850/see-whether-sudo-mode-is-on-password-is-cached-on-the-command-line-prompt
 # Ask for the administrator password upfront
-echo "Please provide your admin password"
-sudo -v
+check_sudo_access(){
+    sudo -n true 2> /dev/null
+}
+get_sudo_access() {
+    if ! check_sudo_access
+    then
+        echo "Please provide your admin password"
+        sudo -v
+    fi
+}
+get_sudo_access
+sleep 1
 
-# Keep-alive: update existing `sudo` time stamp until `.macos` has finished
-while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
+# ========================= #
+# Refreshing the Sudo time  #
+# ========================= #
+
+# Keep-alive: update existing `sudo` time stamp until the script has finished
+# -n, --non-interactive
+#                   Avoid prompting the user for input of any kind.  If a password is required for the command to run, sudo will display an error message and
+#                   exit.
+# So how it works is that we first ask for the password before this while loop (that makes sudo active for some time.)
+# now we don't want sudo to end and fail for other commands like. So we non interactively asks for permission every 60 seconds.
+# But since sudo is already active, it does throw an error message but resets the time again for sudo
+# $$ tells the PID of current process
+# The kill -0 command is used to check if a process with a specific process ID (PID) is running. It does not actually terminate or kill the process; instead, it tests whether the process exists and whether the user has permission to send a signal to it.
+# if the process exists and the user has permission to send a signal to it, the command will exit successfully (with a return code of 0). If the process does not exist or the user does not have permission, the command will fail (with a non-zero return code).
+# so if kill -0 returns successfully (process exists) then the exit in or won't be triggered.
+# if it fails, it means the process does not exist anymore, then exit is used to exit from the background process we have created
+# while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done &
+is_process_active() {
+    kill -0 $$ 1>/dev/null 2>/dev/null
+}
+refresh_sudo() {
+    # echo "inside refresh_sudo"
+    while true
+    do
+        # echo "inside the while loop"
+        sudo -n true
+        sleep 60
+        if ! is_process_active
+        then
+            # echo "process is not active, exiting the background process (while loop)"
+            exit
+        else
+            # echo "process is still active, not exiting"
+            continue
+        fi
+    done
+}
+refresh_sudo&
 
 # ================================= #
 # Install XCode Command Line Tools. #
@@ -51,26 +104,33 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 # xcode-select -p 1>/dev/null;echo $?
 
-not-xcode() {
-    return $(xcode-select -p 1>/dev/null;echo $?)
+# https://unix.stackexchange.com/questions/232421/why-is-my-function-call-not-working-when-returning-a-boolean
+is_xcode_installed() {
+    xcode-select -p 1>/dev/null 2>/dev/null
 }
 
-if [[ not-xcode ]]
-then
-        echo "hello not xcode"
-fi
-
-if [[ $(xcode-select --print-path &> /dev/null) ]]
-then
+setup_xcode() {
     echo ""
-    echo "Installing Command Line tools"
-    xcode-select --install &> /dev/null
-fi
+    echo "------------===============------------"
+    echo "Setting up XCode"
+    echo "------------===============------------"
+    if is_xcode_installed
+    then
+        echo "-- skipping -- XCode is already installed, hurray!"
+        return
+    fi
+    echo "Installing Command Line tools (XCode)"
+    xcode-select --install
+}
+
+setup_xcode
+sleep 1
+
 
 # Wait until XCode Command Line Tools installation has finished.
-until $(xcode-select --print-path &> /dev/null)
+until is_xcode_installed
 do
-  sleep 5
+  sleep 1
 done
 
 
@@ -86,21 +146,29 @@ git-clone() {
     fi
 }
 
-
 # =============== #
 # Setting up brew #
 # =============== #
 
-if [[ ! $(which brew) ]]
-then
+install_brew() {
+    echo ""
     echo "------------===============------------"
-    echo "Installing homebrew"
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 
-    sleep 5;
-fi
+    echo "Setting up brew"
+    echo "------------===============------------"
+    if [[ $(which brew) ]]
+    then
+        echo "--skipping-- brew is already installed"
+        return
+    fi
 
-echo "------------===============------------"
-echo "installing brews and casks"
+    echo "Installing brew"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 
+    echo "Installed brew"
+}
+
+install_brew
+sleep 1
+
 # brews=(
 # 	"git"
 # 	"tree"
@@ -144,78 +212,96 @@ echo "installing brews and casks"
 # echo "$file" > BREWFILE
 # brew bundle --file=BREWFILE
 
+install_brews() {
+    echo ""
+    echo "------------===============------------"
+    echo "Installing brews and casks"
+    echo "------------===============------------"
+    echo "Do you want to install brews and casks? Type y for yes"
+    read -r -p "**** waiting for input ****    "
+    if [[ $REPLY != "y" ]]
+    then
+        return
+    fi
 
-brew bundle --file=- <<-EOF
-# For installing packages like this, refer - https://github.com/Homebrew/brew/issues/2491#issuecomment-372402005
-# and https://github.com/Homebrew/homebrew-bundle
-# Also look at these - https://unix.stackexchange.com/questions/505828/how-to-pass-a-string-to-a-command-that-expects-a-file and https://unix.stackexchange.com/questions/20035/how-to-add-newlines-into-variables-in-bash-script
+    curl -fsSL https://raw.githubusercontent.com/piyush1104/dotfiles/master/macos/Brewfile | brew bundle --file=-    
+}
 
-#installing brews
-brew "git"
-brew "tree"
-brew "bat"
-brew "piyush1104/formulas/macprefs"
-brew "stow"
-brew "node"
-brew "fzf"
-brew "gh"
-brew "jq"
-brew "w3m"
-brew "bat"
-brew "gitui"
-brew "zsh-vi-mode"
-brew "docker"
-brew "mas"
-
-# installing casks
-cask "protonvpn"
-cask "notion"
-cask "figma"
-cask "betterzip"
-cask "sequel-ace"
-cask "google-chrome"
-cask "firefox"
-cask "iterm2"
-cask "google-drive"
-cask "visual-studio-code"
-cask "sublime-text"
-cask "vlc"
-cask "discord"
-cask "zoom"
-cask "sublime-merge"
-cask "obsidian"
-cask "pycharm-ce"
+install_brews
+sleep 1
 
 
-# I am installing these packages after looking from here - http://sourabhbajaj.com/mac-setup/Homebrew/Cask.html
-# Also look it here - https://github.com/sindresorhus/quick-look-plugins
-cask "qlcolorcode"
-cask "qlmarkdown"
-cask "qlstephen"
-cask "quicklook-json"
-cask "webpquicklook"
-cask "suspicious-package"
-cask "qmoji"
-cask "qlvideo"
+# brew bundle --file=- <<-EOF
+# # For installing packages like this, refer - https://github.com/Homebrew/brew/issues/2491#issuecomment-372402005
+# # and https://github.com/Homebrew/homebrew-bundle
+# # Also look at these - https://unix.stackexchange.com/questions/505828/how-to-pass-a-string-to-a-command-that-expects-a-file and https://unix.stackexchange.com/questions/20035/how-to-add-newlines-into-variables-in-bash-script
 
-cask "spotify"
-cask "focus"
-cask "slack"
-cask "whatsapp"
-cask "docker"
-cask "flux"
-cask "transmission"
-cask "macvim"
-cask "postman"
-cask "stremio"
-cask "rectangle"
+# #installing brews
+# brew "git"
+# brew "tree"
+# brew "bat"
+# brew "piyush1104/formulas/macprefs"
+# brew "stow"
+# brew "node"
+# brew "fzf"
+# brew "gh"
+# brew "jq"
+# brew "w3m"
+# brew "bat"
+# brew "gitui"
+# brew "zsh-vi-mode"
+# brew "docker"
+# brew "mas"
 
-# good package, but I don't need it yet
-# cask "sensiblesidebuttons"
+# # installing casks
+# cask "protonvpn"
+# cask "notion"
+# cask "figma"
+# cask "betterzip"
+# cask "sequel-ace"
+# cask "google-chrome"
+# cask "firefox"
+# cask "iterm2"
+# cask "google-drive"
+# cask "visual-studio-code"
+# cask "sublime-text"
+# cask "vlc"
+# cask "discord"
+# cask "zoom"
+# cask "sublime-merge"
+# cask "obsidian"
+# cask "pycharm-ce"
 
-tap "homebrew/cask-fonts"
-cask "font-fira-code"
-EOF
+
+# # I am installing these packages after looking from here - http://sourabhbajaj.com/mac-setup/Homebrew/Cask.html
+# # Also look it here - https://github.com/sindresorhus/quick-look-plugins
+# cask "qlcolorcode"
+# cask "qlmarkdown"
+# cask "qlstephen"
+# cask "quicklook-json"
+# cask "webpquicklook"
+# cask "suspicious-package"
+# cask "qmoji"
+# cask "qlvideo"
+
+# cask "spotify"
+# cask "focus"
+# cask "slack"
+# cask "whatsapp"
+# cask "docker"
+# cask "flux"
+# cask "transmission"
+# cask "macvim"
+# cask "postman"
+# cask "stremio"
+# cask "rectangle"
+
+# # good package, but I don't need it yet
+# # cask "sensiblesidebuttons"
+
+# tap "homebrew/cask-fonts"
+# cask "font-fira-code"
+# EOF
 
 
 # another way to install all the casks and brews are -
@@ -232,138 +318,252 @@ EOF
 # Setting up your git #
 # =================== #
 
-git config --global user.name "Piyush Bansal"
-git config --global user.email "bansalpiyush177@gmail.com"
+setup_git_config() {
+    echo ""
+    echo "------------===============------------"
+    echo "Setting default configs for git"
+    echo "------------===============------------"
+    if [[ $(git config --global user.name) ]]
+    then
+        echo "--skipping-- git config is already set"
+        return
+    fi
+    
+    git config --global user.name "Piyush Bansal"
+    git config --global user.email "bansalpiyush177@gmail.com"
+    echo "git config updated"
+}
 
-echo "------------===============------------"
-echo "Generating a new SSH key for GitHub"
+setup_git_config
+sleep 1
 
-default_email="bansalpiyush177@gmail.com"
-default_comment="me+github@piyush1104.com from Macbook Pro"
-echo "Please enter your comment for the public key, press Enter to use default comment- ${default_comment}"
 
-read -r -p "**** waiting for input ****    " comment
-if [[ ! $comment ]]
-then
-	comment=${default_comment}
-fi
+setup_git_ssh() {
+    echo ""
+    echo "------------===============------------"
+    echo "Setting up your ssh key for GitHub"
+    echo "------------===============------------"
 
-ssh-keygen -t ed25519 -C "${comment}" -f ~/.ssh/id_ed25519
+    location=~/.ssh/id_ed25519
+    if [[ -e ${location} && -r ${location} ]]
+    then
+        echo "--skipping-- ssh key already exists"
+        return
+    fi
 
-# eval "$(ssh-agent -s)"
-touch ~/.ssh/config
-echo "Host *\n AddKeysToAgent yes\n UseKeychain yes\n IdentityFile ~/.ssh/id_ed25519" | tee ~/.ssh/config
+    echo "Generating a new SSH key for GitHub"
+    default_email="bansalpiyush177@gmail.com"
+    default_comment="me+github@piyush1104.com from Macbook Pro"
+    echo "Please enter your comment for the public key, press Enter to use default comment- ${default_comment}"
 
-# ssh-add -K ~/.ssh/id_ed25519
-cat ~/.ssh/id_ed25519.pub
-pbcopy < ~/.ssh/id_ed25519.pub
+    read -r -p "**** waiting for input ****    " comment
+    if [[ ! $comment ]]
+    then
+        comment=${default_comment}
+    fi
 
-echo "------------===============------------"
-echo "Copied the above file to your clipboard"
+    ssh-keygen -t ed25519 -C "${comment}" -f ~/.ssh/id_ed25519
 
-echo "Logging you to github using gh, please select n while uploading ssh key"
-echo "A good way to login github is either using browser way or a personal token"
-gh auth login
-gh ssh-key add ~/.ssh/id_ed25519.pub --title="${comment}"
+    # eval "$(ssh-agent -s)"
+    touch ~/.ssh/config
+    echo "Host *\n AddKeysToAgent yes\n UseKeychain yes\n IdentityFile ~/.ssh/id_ed25519" | tee ~/.ssh/config
+    echo "ssh key setup completed"
+}
 
-echo "------------===============------------"
-echo "Press ENTER for going ahead"
-read -r -p "**** waiting for input ****    "
+setup_git_ssh
+sleep 1
 
+setup_github() {
+    echo ""
+    echo "------------===============------------"
+    echo "Setting your github"
+    echo "------------===============------------"
+    echo "Do you want to add the ssh key to github? Type y for yes"
+    read -r -p "**** waiting for input ****    "
+    if [[ $REPLY != "y" ]]
+    then
+        return
+    fi
+
+    cat ~/.ssh/id_ed25519.pub
+    pbcopy < ~/.ssh/id_ed25519.pub
+
+    echo ""
+    echo "Copied the above public key to your clipboard"
+    echo ""
+    echo "Logging you to github using gh, please select n while uploading ssh key"
+    echo "A good way to login github is either using browser way or a personal token"
+    gh auth login
+    gh ssh-key add ~/.ssh/id_ed25519.pub --title="${comment}"
+}
+
+setup_github
+sleep 1
 
 # ================ #
 # Cloning dotfiles #
 # ================ #
 
-DOTFILES_DIR="${HOME}/dotfiles"
-echo "cloning dotfiles"
-git-clone git@github.com:piyush1104/dotfiles.git $DOTFILES_DIR
-cd ~/dotfiles
-stow vim
-stow zsh
-stow nvim
-cd -
+setup_dotfiles() {
+    echo ""
+    echo "------------===============------------"
+    echo "Setting your dotfiles"
+    echo "------------===============------------"
+    echo "Do you want to setup dotfiles? Type y for yes"
+    read -r -p "**** waiting for input ****    "
+    if [[ $REPLY != "y" ]]
+    then
+        return
+    fi
 
+    DOTFILES_DIR="${HOME}/dotfiles"
+    git-clone git@github.com:piyush1104/dotfiles.git $DOTFILES_DIR
+    cd ~/dotfiles
+    stow vim
+    stow zsh
+    stow nvim
+    cd -
+}
+
+setup_dotfiles
 
 # ================================== #
 # Installing some command line tools #
 # ================================== #
 
-echo "------------===============------------"
-echo "Installing fzf utils"
-$(brew --prefix)/opt/fzf/install 
-
-echo "------------===============------------"
-echo "Installing tmpmail"
-curl -sSL "https://git.io/tmpmail" > tmpmail && chmod +x tmpmail
-mkdir -p "${HOME}/bin"
-mv tmpmail "${HOME}/bin/"
-
-echo "------------===============------------"
-echo "Installing ohmyzsh"
-git-clone https://github.com/ohmyzsh/ohmyzsh.git "${HOME}/.oh-my-zsh"
-
-echo "------------===============------------"
-echo "Installing nvm"
-curl -sSLo- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
-
-
-if [[ ! $(which npm) ]]
-then
+install_fzf() {
     echo "------------===============------------"
-    echo "npm is not loaded, would you like to try loading it? Press y for yes"
+    echo "Type y to install fzf utils, anything else for skipping this step"
     read -r -p "**** waiting for input ****    "
-
-    if [[ $REPLY == "y" ]]
+    if [[ $REPLY != "y" ]]
     then
-        echo ".... loading nvm ...."
-        loadnvm
+        return
     fi
-fi
 
-if [[ $(which npm) ]]
-then
+    $(brew --prefix)/opt/fzf/install 
+}
+
+install_tmpmail() {
     echo "------------===============------------"
-    echo "Installing global npm packages like - prettier"
-    npm install -g prettier
-    npm install -g eslint
-    npm install -g yarn
-fi
+    echo "Type y to install tmpmail, anything else for skipping this step"
+    read -r -p "**** waiting for input ****    "
+    if [[ $REPLY != "y" ]]
+    then
+        return
+    fi
+
+    curl -sSL "https://git.io/tmpmail" > tmpmail && chmod +x tmpmail
+    mkdir -p "${HOME}/bin"
+    mv tmpmail "${HOME}/bin/"
+}
+
+install_ohmyzsh() {
+    echo "------------===============------------"
+    echo "Type y to install ohmyzsh, anything else for skipping this step"
+    read -r -p "**** waiting for input ****    "
+    if [[ $REPLY != "y" ]]
+    then
+        return
+    fi
+
+    git-clone https://github.com/ohmyzsh/ohmyzsh.git "${HOME}/.oh-my-zsh"
+}
+
+install_tools() {
+    echo ""
+    echo "------------===============------------"
+    echo "Installing some command line tools"
+    echo "------------===============------------"
+    install_fzf
+
+    install_tmpmail
+
+    install_ohmyzsh
+
+    echo "------------===============------------"
+    echo "Installing nvm"
+    curl -sSLo- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+
+
+    if [[ ! $(which npm) ]]
+    then
+        echo "------------===============------------"
+        echo "npm is not loaded, would you like to try loading it? Type y for yes"
+        read -r -p "**** waiting for input ****    "
+
+        if [[ $REPLY == "y" ]]
+        then
+            echo ".... loading nvm ...."
+            loadnvm
+        fi
+    fi
+
+    if [[ $(which npm) ]]
+    then
+        echo "------------===============------------"
+        echo "Installing global npm packages like - prettier"
+        npm install -g prettier
+        npm install -g eslint
+        npm install -g yarn
+    fi
+}
+
+install_tools
+
 
 
 # ======================= #
 # Setting mac preferences #
 # ======================= #
 
-echo "------------===============------------"
-echo "Setting your preferences"
-export MACPREFS_BACKUP_DIR="${HOME}/dotfiles/macos/preferences"
-
-echo "Press y to change your preferences, anything else for skipping this step"
-read -r -p "**** waiting for input ****    "
-
-if [[ $REPLY == "y" ]]
-then
+setup_preferences() {
+    echo ""
+    echo "------------===============------------"
+    echo "Setting up your preferences"
+    echo "------------===============------------"
+    echo "Type y to change your preferences, anything else for skipping this step"
+    read -r -p "**** waiting for input ****    "
+    if [[ $REPLY != "y" ]]
+    then
+        return
+    fi
 
     echo "Make sure that your terminal has full disk access for this to work properly."
     echo "https://osxdaily.com/2018/10/09/fix-operation-not-permitted-terminal-error-macos/"
     read -r -p "Press ENTER if you have made sure."
 
-	if [[ -d $MACPREFS_BACKUP_DIR && -r $MACPREFS_BACKUP_DIR ]]
-	then
-		macprefs restore -t system_preferences startup_items preferences app_store_preferences internet_accounts
+    export MACPREFS_BACKUP_DIR="${HOME}/dotfiles/macos/preferences"
+
+    if [[ -d $MACPREFS_BACKUP_DIR && -r $MACPREFS_BACKUP_DIR ]]
+    then
+        macprefs restore -t system_preferences startup_items preferences app_store_preferences internet_accounts
         echo "------------===============------------"
         echo "You might have to logout or maybe even restart, once the script ends for preferences to take effect."
-	fi
-fi
+    fi
 
+    # TODO: iterm preferences, notes preferences, automatic signin for slack, notes and apple.
+    # TODO: check packages before installing them
+}
 
-# TODO: iterm preferences, notes preferences, automatic signin for slack, notes and apple.
-# TODO: check packages before installing them
+setup_preferences
 
-echo "------------===============------------"
-echo "Installing tools for vim"
+setup_vim_tools() {
+    echo ""
+    echo "------------===============------------"
+    echo "Installing tools for vim"
+    echo "------------===============------------"
+    echo "Type y to install your vim tools, anything else for skipping this step"
+    read -r -p "**** waiting for input ****    "
+    if [[ $REPLY != "y" ]]
+    then
+        return
+    fi
 
-curl -fsSLo ~/.vim/autoload/plug.vim --create-dirs \
-    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-echo "Installed plug.vim, remember to do :PlugInstall after opening vim"
+    curl -fsSLo ~/.vim/autoload/plug.vim --create-dirs \
+        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    echo "Installed plug.vim, remember to do :PlugInstall after opening vim"
+
+}
+
+setup_vim_tools
+
