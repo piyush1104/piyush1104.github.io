@@ -224,7 +224,7 @@ install_brews() {
         return
     fi
 
-    curl -fsSL https://raw.githubusercontent.com/piyush1104/dotfiles/master/macos/Brewfile | brew bundle --file=-    
+    curl -fsSL https://raw.githubusercontent.com/piyush1104/dotfiles/master/macos/Brewfile | /opt/homebrew/bin/brew bundle --file=-    
 }
 
 install_brews
@@ -440,7 +440,7 @@ install_fzf() {
         return
     fi
 
-    $(brew --prefix)/opt/fzf/install 
+    $(/opt/homebrew/bin/brew --prefix)/opt/fzf/install 
 }
 
 install_tmpmail() {
