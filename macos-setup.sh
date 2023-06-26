@@ -331,6 +331,7 @@ setup_git_config() {
     
     git config --global user.name "Piyush Bansal"
     git config --global user.email "bansalpiyush177@gmail.com"
+    git config --global url.ssh://git@github.com/.insteadOf https://github.com/
     echo "git config updated"
 }
 
@@ -423,6 +424,9 @@ setup_dotfiles() {
     stow zsh
     stow nvim
     cd -
+
+    # . ~/.zshrc
+    source ~/.zshrc
 }
 
 setup_dotfiles
@@ -567,3 +571,10 @@ setup_vim_tools() {
 
 setup_vim_tools
 
+install_go_tools() {
+    go install github.com/cespare/reflex@latest
+    go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+    go install google.golang.org/grpc/cmd/protoc-gen-go-grp@latest
+}
+
+install_go_tools
