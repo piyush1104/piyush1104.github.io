@@ -573,8 +573,8 @@ setup_vim_tools
 
 install_go_tools() {
     go install github.com/cespare/reflex@latest
-    go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-    go install google.golang.org/grpc/cmd/protoc-gen-go-grp@latest
+    go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
+    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
 }
 
 install_go_tools
