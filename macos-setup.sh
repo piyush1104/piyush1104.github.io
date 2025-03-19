@@ -169,6 +169,8 @@ install_brew() {
 install_brew
 sleep 1
 
+brew install gh
+
 # brews=(
 # 	"git"
 # 	"tree"
@@ -224,11 +226,11 @@ install_brews() {
         return
     fi
 
-    curl -fsSL https://raw.githubusercontent.com/piyush1104/dotfiles/master/macos/Brewfile | /opt/homebrew/bin/brew bundle --file=-    
+    curl -fsSL https://raw.githubusercontent.com/piyush1104/dotfiles/mac1/macos/Brewfile | /opt/homebrew/bin/brew bundle --file=-    
 }
 
-install_brews
-sleep 1
+# install_brews
+# sleep 1
 
 
 # brew bundle --file=- <<-EOF
@@ -401,6 +403,9 @@ setup_github() {
 setup_github
 sleep 1
 
+install_brews
+sleep 1
+
 # ================ #
 # Cloning dotfiles #
 # ================ #
@@ -418,7 +423,7 @@ setup_dotfiles() {
     fi
 
     DOTFILES_DIR="${HOME}/dotfiles"
-    git-clone git@github.com:piyush1104/dotfiles.git $DOTFILES_DIR
+    git clone --single-branch --branch mac1 git@github.com:piyush1104/dotfiles.git $DOTFILES_DIR
     cd ~/dotfiles
     stow vim
     stow zsh
