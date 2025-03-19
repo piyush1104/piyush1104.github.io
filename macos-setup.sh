@@ -169,7 +169,7 @@ install_brew() {
 install_brew
 sleep 1
 
-brew install gh
+/opt/homebrew/bin/brew install gh
 
 # brews=(
 # 	"git"
