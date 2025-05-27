@@ -167,6 +167,14 @@ install_brew() {
     echo "Installing brew"
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 
     echo "Installed brew"
+
+    if ! command -v brew &> /dev/null; then
+        echo 'Homebrew not found in PATH. Adding it...'
+        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    else
+        echo 'Homebrew is already accessible.'
+    fi
 }
 
 install_brew
