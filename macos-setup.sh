@@ -226,7 +226,7 @@ install_brews() {
         return
     fi
 
-    curl -fsSL https://raw.githubusercontent.com/piyush1104/dotfiles/mac1/macos/Brewfile | /opt/homebrew/bin/brew bundle --file=-    
+    curl -fsSL https://raw.githubusercontent.com/piyush1104/dotfiles-public-mirror/mac1/macos/Brewfile | /opt/homebrew/bin/brew bundle --file=-    
 }
 
 # install_brews
