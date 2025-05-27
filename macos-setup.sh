@@ -228,9 +228,9 @@ sleep 1
 install_brews() {
     echo ""
     echo "------------===============------------"
-    echo "Installing minimum brews and casks"
+    echo "Installing minimum brews"
     echo "------------===============------------"
-    echo "Do you want to install basic brews and casks? Type y for yes"
+    echo "Do you want to install basic brews? Type y for yes"
     read -r -p "**** waiting for input ****    "
     if [[ $REPLY != "y" ]]
     then
@@ -295,6 +295,26 @@ brew "k9s"
 brew "lua"
 brew "act"
 brew "fd"
+
+EOF
+}
+
+install_casks() {
+    echo ""
+    echo "------------===============------------"
+    echo "Installing minimum casks"
+    echo "------------===============------------"
+    echo "Do you want to install basic casks? Type y for yes"
+    read -r -p "**** waiting for input ****    "
+    if [[ $REPLY != "y" ]]
+    then
+        return
+    fi
+
+    brew bundle --file=- <<-EOF
+# For installing packages like this, refer - https://github.com/Homebrew/brew/issues/2491#issuecomment-372402005
+# and https://github.com/Homebrew/homebrew-bundle
+# Also look at these - https://unix.stackexchange.com/questions/505828/how-to-pass-a-string-to-a-command-that-expects-a-file and https://unix.stackexchange.com/questions/20035/how-to-add-newlines-into-variables-in-bash-script
 
 # installing casks
 # cask "protonvpn"
@@ -400,6 +420,7 @@ vscode "yzhang.markdown-all-in-one"
 
 EOF
 }
+
 
 install_brews_from_brewfile() {
     echo ""
@@ -520,9 +541,44 @@ sleep 1
 install_brews
 sleep 1
 
+install_casks
+sleep 1
+
+install_brews_from_brewfile
+sleep 1
+
 # ================ #
 # Cloning dotfiles #
 # ================ #
+
+install_ohmyzsh() {
+    echo "------------===============------------"
+    echo "Type y to install ohmyzsh, anything else for skipping this step"
+    read -r -p "**** waiting for input ****    "
+    if [[ $REPLY != "y" ]]
+    then
+        return
+    fi
+
+    git-clone https://github.com/ohmyzsh/ohmyzsh.git "${HOME}/.oh-my-zsh"
+}
+
+install_fzf() {
+    echo "------------===============------------"
+    echo "Type y to install fzf utils, anything else for skipping this step"
+    read -r -p "**** waiting for input ****    "
+    if [[ $REPLY != "y" ]]
+    then
+        return
+    fi
+
+    $(/opt/homebrew/bin/brew --prefix)/opt/fzf/install 
+}
+
+install_fzf
+
+install_ohmyzsh
+
 
 setup_dotfiles() {
     echo ""
@@ -554,18 +610,6 @@ setup_dotfiles
 # Installing some command line tools #
 # ================================== #
 
-install_fzf() {
-    echo "------------===============------------"
-    echo "Type y to install fzf utils, anything else for skipping this step"
-    read -r -p "**** waiting for input ****    "
-    if [[ $REPLY != "y" ]]
-    then
-        return
-    fi
-
-    $(/opt/homebrew/bin/brew --prefix)/opt/fzf/install 
-}
-
 install_tmpmail() {
     echo "------------===============------------"
     echo "Type y to install tmpmail, anything else for skipping this step"
@@ -580,28 +624,13 @@ install_tmpmail() {
     mv tmpmail "${HOME}/bin/"
 }
 
-install_ohmyzsh() {
-    echo "------------===============------------"
-    echo "Type y to install ohmyzsh, anything else for skipping this step"
-    read -r -p "**** waiting for input ****    "
-    if [[ $REPLY != "y" ]]
-    then
-        return
-    fi
-
-    git-clone https://github.com/ohmyzsh/ohmyzsh.git "${HOME}/.oh-my-zsh"
-}
-
 install_tools() {
     echo ""
     echo "------------===============------------"
     echo "Installing some command line tools"
     echo "------------===============------------"
-    install_fzf
 
     install_tmpmail
-
-    install_ohmyzsh
 
     echo "------------===============------------"
     echo "Installing nvm"
