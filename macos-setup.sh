@@ -321,27 +321,6 @@ install_brews() {
 # Setting up your git #
 # =================== #
 
-setup_git_config() {
-    echo ""
-    echo "------------===============------------"
-    echo "Setting default configs for git"
-    echo "------------===============------------"
-    if [[ $(git config --global user.name) ]]
-    then
-        echo "--skipping-- git config is already set"
-        return
-    fi
-    
-    git config --global user.name "Piyush Bansal"
-    git config --global user.email "bansalpiyush177@gmail.com"
-    git config --global url.ssh://git@github.com/.insteadOf https://github.com/
-    echo "git config updated"
-}
-
-setup_git_config
-sleep 1
-
-
 setup_git_ssh() {
     echo ""
     echo "------------===============------------"
@@ -402,6 +381,26 @@ setup_github() {
 }
 
 setup_github
+sleep 1
+
+setup_git_config() {
+    echo ""
+    echo "------------===============------------"
+    echo "Setting default configs for git"
+    echo "------------===============------------"
+    if [[ $(git config --global user.name) ]]
+    then
+        echo "--skipping-- git config is already set"
+        return
+    fi
+    
+    git config --global user.name "Piyush Bansal"
+    git config --global user.email "bansalpiyush177@gmail.com"
+    git config --global url.ssh://git@github.com/.insteadOf https://github.com/
+    echo "git config updated"
+}
+
+setup_git_config
 sleep 1
 
 install_brews
