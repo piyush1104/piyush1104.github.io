@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
-# Run this script (preferred method)
+# Run this script (PREFERRED method)
 # /bin/bash -c "$(curl -fsSL https://piyush1104.github.io/macos-setup.sh)"
-# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/piyush1104/piyush1104.github.io/master/macos-setup.sh)" - for downloading from specific branch
+
+# for downloading from specific branch (another PREFERRED method)
+# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/piyush1104/piyush1104.github.io/master/macos-setup.sh)"
 
 # Obselete method - (for some reason, it fails sometimes)
 # curl -fsSL https://piyush1104.github.io/macos-setup.sh | bash
