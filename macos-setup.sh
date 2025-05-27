@@ -370,8 +370,8 @@ cask "stremio"
 # good package, but I don't need it yet
 # cask "sensiblesidebuttons"
 
-# tap "homebrew/cask-fonts"
 cask "font-fira-code"
+cask "font-caskaydia-cove-nerd-font"
 
 mas "CopyClip", id: 595191960
 mas "Developer", id: 640199958
